@@ -30,3 +30,6 @@ app/static/www-widgetapi.js
 app/templates/.DS_Store
 app/templates/index-new.html
 app/templates/index.html
+app/templates/layout.html
+app/templates/login.html
+app/templates/show_entries.html
