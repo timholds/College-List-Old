@@ -1,11 +1,12 @@
 import os
 import sqlite3
-#from flask import Flask
-#import flask
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 app = Flask(__name__) # create the application instance :)
-#app.config.from_object(__name__) # load config from this file , flaskr.py
+app.config.from_object(__name__) # load config from this file , flaskr.py
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
@@ -14,7 +15,7 @@ app.config.update(dict(
     USERNAME='admin',
     PASSWORD='default'
 ))
-print(app.root_path)
+
 app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 def connect_db():
@@ -46,12 +47,6 @@ def initdb_command():
     print('Initialized the database.')
 
 
-@app.teardown_appcontext
-def close_db(error):
-    """Closes the database again at the end of the request."""
-    if hasattr(g, 'sqlite_db'):
-        g.sqlite_db.close()
-
 @app.route('/add', methods=['POST'])
 def add_entry():
     if not session.get('logged_in'):
@@ -66,18 +61,32 @@ def add_entry():
 
 @app.route('/')
 def hello_world():
+    """
     db = get_db()
     cur = db.execute('select title, text from entries order by id desc')
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
-    #return "Hello, world!"
+    """
+    return "Hello"
 
 @app.route('/index')
 def show_entries():
     db = get_db()
     cur = db.execute('select title, text from entries order by id desc')
     entries = cur.fetchall()
-    return render_template('templates/show_entries.html', entries=entries)
+    return render_template('show_entries.html', entries=entries)
+
+# TODO figure out how to pass the url name to the database to get that row of data
+@app.route('/ucla')
+def ucla():
+    db = get_db()
+    cur = db.execute('select title, text from entries order by id desc')
+    entries = cur.fetchall()
+    return render_template('ucla.html', entries=entries)
+
+@app.route('/Berkeley')
+def berkeley()
+    return render_template('Berkeley.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -106,12 +115,9 @@ if __name__ == '__main__':
     app.run()
 
 
-@app.route('/UCLA')
-def ucla():
-    #TODO make UCLA.html
-    return render_template('UCLA.html')
-
-@app.route('/Berkeley')
-def berkeley():
-    return render_template('Berkeley.html')
+@app.teardown_appcontext
+def close_db(error):
+    """Closes the database again at the end of the request."""
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
 
